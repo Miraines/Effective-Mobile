@@ -164,7 +164,6 @@ classDiagram
 ## Покрытие тестами
 
 * **Unit‑тесты:** сервисный слой, валидаторы, repo‑mocks
-* **Интеграционные:** HTTP‑ручки на `httptest`, миграции на éphemeral Postgres (testcontainers)
 * **CI:** GitHub Actions запускает `tests`, `go vet` при каждом PR.
 
 ---
