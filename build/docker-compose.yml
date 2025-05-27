@@ -1,0 +1,44 @@
+﻿services:
+  db:
+    image: postgres:17
+    container_name: people_pg
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-people}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-people}
+      POSTGRES_DB: ${DB_NAME:-people_enricher}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - "${DB_PORT_OUT:-5433}:5432"
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "${DB_USER:-people}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  adminer:
+    image: adminer
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  app:
+    build:
+      context: ..
+      dockerfile: build/Dockerfile
+    env_file:
+      - ../.env
+    environment:
+      - APP_ENV=${APP_ENV:-default}
+    ports:
+      - "${SERVER_PORT:-8000}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  pg_data:

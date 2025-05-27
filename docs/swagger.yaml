@@ -1,0 +1,205 @@
+definitions:
+  domain.Person:
+    description: Человек c обогащёнными полями.
+    properties:
+      age:
+        type: integer
+      country_id:
+        type: string
+      created_at:
+        type: string
+      gender:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      patronymic:
+        type: string
+      probability:
+        type: number
+      surname:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  http.CreatePersonRequest:
+    description: ФИО будущего пользователя.
+    properties:
+      name:
+        type: string
+      patronymic:
+        type: string
+      surname:
+        type: string
+    required:
+    - name
+    - surname
+    type: object
+  http.UpdatePersonRequest:
+    description: Полное обновление полей ФИО.
+    properties:
+      name:
+        type: string
+      patronymic:
+        type: string
+      surname:
+        type: string
+    required:
+    - name
+    - surname
+    type: object
+info:
+  contact: {}
+paths:
+  /api/v1/people:
+    get:
+      consumes:
+      - application/json
+      description: Вывести список людей с фильтрацией и пагинацией
+      parameters:
+      - description: максимум элементов (default 10)
+        in: query
+        name: limit
+        type: integer
+      - description: смещение (default 0)
+        in: query
+        name: offset
+        type: integer
+      - description: фильтр по имени, ILIKE
+        in: query
+        name: name
+        type: string
+      - description: фильтр по фамилии, ILIKE
+        in: query
+        name: surname
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: total & items
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List people
+      tags:
+      - people
+    post:
+      consumes:
+      - application/json
+      description: Добавляет нового человека и мгновенно обогащает возрастом, полом,
+        национальностью
+      parameters:
+      - description: ФИО
+        in: body
+        name: person
+        required: true
+        schema:
+          $ref: '#/definitions/http.CreatePersonRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: '{"id":1}'
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+        "400":
+          description: ошибка валидации
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: внутренняя ошибка
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create person
+      tags:
+      - people
+  /api/v1/people/{id}:
+    delete:
+      description: Удалить человека по ID
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete person
+      tags:
+      - people
+    get:
+      consumes:
+      - application/json
+      description: Получить человека по ID
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Person'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get person
+      tags:
+      - people
+    put:
+      consumes:
+      - application/json
+      description: Полностью обновить ФИО (и заново обогатить данные)
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Новое ФИО
+        in: body
+        name: person
+        required: true
+        schema:
+          $ref: '#/definitions/http.UpdatePersonRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update person
+      tags:
+      - people
+swagger: "2.0"

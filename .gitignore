@@ -1,0 +1,12 @@
+﻿/bin/
+/*.exe
+*.test
+*.out
+
+vendor/
+
+.idea/
+
+.DS_Store
+
+.env
